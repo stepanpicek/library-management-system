@@ -4,7 +4,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Loan : Entity
 {
-    public DateTime BorrowedAt { get; private set; }
-    public DateTime? ReturnedAt { get; private set; }
+    public DateTime BorrowedAt { get; set; }
+    public DateTime? ReturnedAt { get; set; }
     public Book Book { get; set; }
 }

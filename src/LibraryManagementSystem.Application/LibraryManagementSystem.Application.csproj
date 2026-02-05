@@ -18,11 +18,4 @@
       <ProjectReference Include="..\LibraryManagementSystem.Domain\LibraryManagementSystem.Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Books\Commands\BorrowBook\" />
-      <Folder Include="Books\Commands\CreateBook\" />
-      <Folder Include="Books\Commands\ReturnBook\" />
-      <Folder Include="Books\Queries\GetBooks\" />
-    </ItemGroup>
-
 </Project>
