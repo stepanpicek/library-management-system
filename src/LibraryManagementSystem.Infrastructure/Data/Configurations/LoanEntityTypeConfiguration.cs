@@ -8,5 +8,8 @@ public class LoanEntityTypeConfiguration : IEntityTypeConfiguration<Loan>
 {
     public void Configure(EntityTypeBuilder<Loan> builder)
     {
+        builder.HasKey(b => b.Id);
+        builder.Property(b => b.Id).ValueGeneratedOnAdd();
+        builder.Property(b => b.ReturnedAt).IsConcurrencyToken();
     }
 }

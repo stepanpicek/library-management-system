@@ -1,5 +1,7 @@
+using LibraryManagementSystem.Application.Common.Exceptions;
 using LibraryManagementSystem.Application.Common.Interfaces;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,27 +11,37 @@ public class BorrowBookCommandHandler(IApplicationDbContext context) : IRequestH
 {
     public async Task Handle(BorrowBookCommand request, CancellationToken cancellationToken)
     {
-        //TODO: Add NotFound exception
-        var book = await context.Books.FindAsync(request.BookId, cancellationToken) ??
-                   throw new InvalidDataException();
-        
-        var updated = await context.Books
-            .Where(b => b.Id == request.BookId)   
-            .ExecuteUpdateAsync(b => b.SetProperty(p => p.AvailableCopies, p => p.AvailableCopies-1),  cancellationToken);
-
-        if (updated == 0)
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        try
         {
-            //TODO: Add domain exception
-            throw new InvalidDataException();
+            var book = await context.Books.FindAsync(request.BookId, cancellationToken) ??
+                       throw new NotFoundException();
+            
+            var updated = await context.Books
+                .Where(b => b.Id == request.BookId && b.AvailableCopies > 0)
+                .ExecuteUpdateAsync(b => 
+                        b.SetProperty(p => p.AvailableCopies, p => p.AvailableCopies - 1),
+                    cancellationToken);
+
+            if (updated == 0)
+            {
+                throw new BookCannotBeBorrowedException(book.Id);
+            }
+
+            var loan = new Loan
+            {
+                BookId = book.Id,
+                BorrowedAt = DateTime.UtcNow
+            };
+
+            context.Loans.Add(loan);
+            await context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
         }
-
-        var loan = new Loan
+        catch
         {
-            Book = book,
-            BorrowedAt = DateTime.Now
-        };
-        
-        context.Loans.Add(loan);
-        await context.SaveChangesAsync(cancellationToken);
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 }

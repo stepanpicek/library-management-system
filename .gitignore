@@ -260,8 +260,5 @@ ModelManifest.xml
 puzzle/
 .puzzle*
 
-# Better Confluence MCP local cache
-/.better-confluence-mcp/
-
-# Better Confluence MCP local cache
-/.better-confluence-mcp/
+# Storage
+*.db
