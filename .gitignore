@@ -261,4 +261,7 @@ puzzle/
 .puzzle*
 
 # Storage
-*.db
+/storage/*
+
+# Better Confluence MCP local cache
+/.better-confluence-mcp/

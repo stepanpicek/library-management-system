@@ -1,13 +1,12 @@
-using LibraryManagementSystem.Domain.Common;
+namespace LibraryManagementSystem.Application.Books.Queries.GetBookDetail;
 
-namespace LibraryManagementSystem.Domain.Entities;
-
-public class Book : Entity
+public class BookDetailDto
 {
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public string Author { get; set; }
     public int Year { get; set; }
     public string Isbn { get; set; }
     public int AvailableCopies { get; set; }
-    public ICollection<Loan> Loans { get; set; }
+    public IReadOnlyCollection<LoanDto> Loans { get; set; }
 }

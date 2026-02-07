@@ -3,4 +3,4 @@ using MediatR;
 
 namespace LibraryManagementSystem.Application.Books.Queries.GetBooks;
 
-public record GetBooksQuery(string? Text, int? Page, int? Size) : IRequest<PaginatedList<BookDto>>;
+public record GetBooksQuery(string? Text = null, int? Page = null, int? Size = null) : IRequest<PaginatedList<BookDto>>;

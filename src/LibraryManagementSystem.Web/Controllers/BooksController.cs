@@ -31,7 +31,6 @@ public class BooksController(ISender sender) : ControllerBase
     [HttpPost("{id:guid}/return")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReturnBook(Guid id)
     {
         await sender.Send(new ReturnBookCommand(id));

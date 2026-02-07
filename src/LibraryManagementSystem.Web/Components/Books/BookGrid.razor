@@ -1,0 +1,60 @@
+@using LibraryManagementSystem.Application.Books.Queries.GetBooks
+@inject NavigationManager Navigation
+
+<div class="card mb-4">
+    <div class="card-body">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>Název</th>
+                <th>Autor</th>
+                <th>ISBN</th>
+                <th>Počet dostupných kusů</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var book in Books)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Isbn</td>
+                    <td>
+                        <span class="badge @(book.AvailableCopies > 0 ? "bg-success" : "bg-danger")">
+                            @book.AvailableCopies
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => Detail(book)">
+                            Detail
+                        </button>
+                        <button class="btn btn-sm btn-outline-success me-1"
+                                disabled="@(book.AvailableCopies <= 0)"
+                                @onclick="() => OnBorrow.InvokeAsync(book)">
+                            Vypůjčit
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => OnReturn.InvokeAsync(book)">
+                            Vrátit
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyCollection<BookDto> Books { get; set; } = [];
+
+    [Parameter] public EventCallback<BookDto> OnBorrow { get; set; }
+
+    [Parameter] public EventCallback<BookDto> OnReturn { get; set; }
+
+    private void Detail(BookDto book)
+    {
+        Navigation.NavigateTo($"/detail/{book.Id}");
+    }
+
+}

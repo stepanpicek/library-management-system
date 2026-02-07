@@ -1,0 +1,73 @@
+@inject IToastService Toasts
+@implements IDisposable
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    @foreach (var item in _messages)
+    {
+        <div class="toast show align-items-center text-white bg-@GetCssClass(item.Message) border-0 mb-2">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @item.Message.Message
+                </div>
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        @onclick="() => Remove(item.Id)">
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly List<ToastItem> _messages = [];
+
+    protected override void OnInitialized()
+    {
+        Toasts.OnShow += Show;
+    }
+
+    private void Show(ToastMessage message)
+    {
+        var id = Guid.NewGuid();
+        var cts = new CancellationTokenSource();
+        _messages.Add(new ToastItem(id, message, cts));
+        StateHasChanged();
+
+        _ = Task.Delay(3000, cts.Token).ContinueWith(_ =>
+        {
+            Remove(id);
+            InvokeAsync(StateHasChanged);
+        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+    }
+
+    private void Remove(Guid id)
+    {
+        var item = _messages.FirstOrDefault(x => x.Id == id);
+        if (item is not null)
+        {
+            item.Cts.Cancel();
+            item.Cts.Dispose();
+            _messages.Remove(item);
+        }
+    }
+
+    private static string GetCssClass(ToastMessage message) => message.Type switch
+    {
+        ToastType.Success => "success",
+        ToastType.Error => "danger",
+        ToastType.Warning => "warning",
+        _ => "info"
+    };
+
+    public void Dispose()
+    {
+        foreach (var item in _messages)
+        {
+            item.Cts.Cancel();
+            item.Cts.Dispose();
+        }
+        Toasts.OnShow -= Show;
+    }
+
+    private sealed record ToastItem(Guid Id, ToastMessage Message, CancellationTokenSource Cts);
+}

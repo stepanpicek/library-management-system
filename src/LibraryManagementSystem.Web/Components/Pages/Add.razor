@@ -1,0 +1,46 @@
+@page "/add"
+@using LibraryManagementSystem.Application.Books.Commands.CreateBook
+@inject ISender Sender
+@inject NavigationManager NavigationManager
+@inject IActionRunner Runner;
+@inject IToastService Toast;
+
+<div class="mb-4">
+    <button class="btn btn-outline-secondary" @onclick="GoBack">
+        &larr; Zpět na seznam
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Přidat knihu</h5>
+    </div>
+    <div class="card-body">
+        <EditForm Model="_model" OnValidSubmit="SubmitAsync" FormName="add-book-form">
+            <DataAnnotationsValidator/>
+            <BookForm Model="_model"/>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Uložit</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private readonly BookFormModel _model = new();
+
+    private async Task SubmitAsync()
+    {
+        await Runner.RunAsync(async () =>
+        {
+            await Sender.Send(new CreateBookCommand(_model.Title!, _model.Author!, _model.Year, _model.Isbn!, _model.AvailableCount));
+            Toast.Success($"Kniha {_model.Title} byla úspěšně vytvořena.");
+            NavigationManager.NavigateTo("/");
+        });
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

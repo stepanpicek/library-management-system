@@ -1,0 +1,30 @@
+<EditForm Model="_model"
+          OnValidSubmit="SubmitAsync">
+
+    <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-8">
+            <InputText class="form-control"
+                       @bind-Value="_model.Text"
+                       placeholder="Hledat podle názvu, autora nebo ISBN"/>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <button type="submit" class="btn btn-primary">
+                Hledat
+            </button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public EventCallback<string> OnSearch { get; set; }
+
+    private readonly SearchFormModel _model = new();
+
+    private async Task SubmitAsync()
+    {
+        var term = (_model.Text ?? string.Empty).Trim();
+        await OnSearch.InvokeAsync(term);
+    }
+
+}

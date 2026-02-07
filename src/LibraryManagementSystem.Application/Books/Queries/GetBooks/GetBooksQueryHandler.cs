@@ -20,16 +20,17 @@ public class GetBooksQueryHandler(IApplicationDbContext context) : IRequestHandl
             var text = request.Text.Trim();
             books = books.Where(b => EF.Functions.Like(b.Title, $"%{text}%") 
                                      || EF.Functions.Like(b.Author, $"%{text}%") 
-                                     || EF.Functions.Like(b.Isbn.Value, $"%{text}%"));
+                                     || EF.Functions.Like(b.Isbn, $"%{text}%") );
         }
 
         return books
             .Select(b => new BookDto
             {
+                Id = b.Id,
                 Title = b.Title,
                 Author = b.Author,
                 Year = b.Year,
-                Isbn = b.Isbn.Value,
+                Isbn = b.Isbn,
                 AvailableCopies = b.AvailableCopies
             })
             .Paginate(request.Page, request.Size);

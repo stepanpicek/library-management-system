@@ -1,0 +1,73 @@
+﻿@page "/"
+@using LibraryManagementSystem.Application.Books.Commands.BorrowBook
+@using LibraryManagementSystem.Application.Books.Commands.ReturnBook
+@using LibraryManagementSystem.Application.Books.Queries.GetBooks
+@using LibraryManagementSystem.Application.Common.Paging
+@inject ISender Sender
+@inject IToastService Toast
+@inject IActionRunner Runner
+@inject NavigationManager Navigation
+
+<PageTitle>Systém správy knih</PageTitle>
+
+<div class="d-flex justify-content-between align-items-end mb-3">
+    <div class="flex-grow-1 me-3">
+        <BookSearchBar OnSearch="SearchAsync"/>
+    </div>
+    <button class="btn btn-success" @onclick="AddBook">
+        + Přidat knihu
+    </button>
+</div>
+<BookGrid Books="_result.Items" OnBorrow="BorrowAsync" OnReturn="ReturnAsync"/>
+
+@code
+{
+    private PaginatedList<BookDto> _result = new([], 0, 1, 10);
+    private string? _text;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        await Runner.RunAsync(async () => { _result = await Sender.Send(new GetBooksQuery(_text)); });
+    }
+
+    private async Task BorrowAsync(BookDto book)
+    {
+        await Runner.RunAsync(async () =>
+        {
+            await Sender.Send(new BorrowBookCommand(book.Id));
+            Toast.Success($"Kniha {book.Title} byla zapůjčena.");
+            book.AvailableCopies--;
+        });
+    }
+
+    private async Task ReturnAsync(BookDto book)
+    {
+        await Runner.RunAsync(async () =>
+            {
+                await Sender.Send(new ReturnBookCommand(book.Id));
+                Toast.Success($"Kniha {book.Title} byla vrácena.");
+                book.AvailableCopies++;
+            },
+            (ex) =>
+            {
+                Toast.Warning(
+                    ex.Errors.Any(r => r.ErrorMessage.Contains("loan")) 
+                        ? $"Knihu {book.Title} nelze vrátit, protože neexistuje žádná otevřená půjčka." 
+                        : $"Knihu {book.Title} aktuálně nelze vrátit.");
+                return Task.CompletedTask;
+            });
+    }
+
+    private async Task SearchAsync(string text)
+    {
+        _text = text;
+        await LoadAsync();
+    }
+
+    private void AddBook()
+    {
+        Navigation.NavigateTo("/add");
+    }
+}

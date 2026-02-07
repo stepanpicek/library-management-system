@@ -1,4 +1,3 @@
-using LibraryManagementSystem.Application.Common.Exceptions;
 using LibraryManagementSystem.Application.Common.Interfaces;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Exceptions;
@@ -14,9 +13,6 @@ public class BorrowBookCommandHandler(IApplicationDbContext context) : IRequestH
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            var book = await context.Books.FindAsync(request.BookId, cancellationToken) ??
-                       throw new NotFoundException();
-            
             var updated = await context.Books
                 .Where(b => b.Id == request.BookId && b.AvailableCopies > 0)
                 .ExecuteUpdateAsync(b => 
@@ -25,12 +21,12 @@ public class BorrowBookCommandHandler(IApplicationDbContext context) : IRequestH
 
             if (updated == 0)
             {
-                throw new BookCannotBeBorrowedException(book.Id);
+                throw new BookCannotBeBorrowedException(request.BookId);
             }
 
             var loan = new Loan
             {
-                BookId = book.Id,
+                BookId = request.BookId,
                 BorrowedAt = DateTime.UtcNow
             };
 

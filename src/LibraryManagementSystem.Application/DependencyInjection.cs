@@ -1,5 +1,6 @@
 using System.Reflection;
 using FluentValidation;
+using LibraryManagementSystem.Application.Common.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -14,6 +15,7 @@ public static class DependencyInjection
         builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
         });
     }
 }

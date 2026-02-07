@@ -1,0 +1,35 @@
+<div class="row g-3">
+    <div class="col-12">
+        <label class="form-label">Název</label>
+        <InputText class="form-control" @bind-Value="Model.Title"/>
+        <ValidationMessage For="@(() => Model.Title)"/>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label class="form-label">Autor</label>
+        <InputText class="form-control" @bind-Value="Model.Author"/>
+        <ValidationMessage For="@(() => Model.Author)"/>
+    </div>
+
+    <div class="col-12 col-md-3">
+        <label class="form-label">Rok vydání</label>
+        <InputNumber class="form-control" @bind-Value="Model.Year"/>
+        <ValidationMessage For="@(() => Model.Year)"/>
+    </div>
+
+    <div class="col-12 col-md-3">
+        <label class="form-label">Počet kusů</label>
+        <InputNumber class="form-control" @bind-Value="Model.AvailableCount"/>
+        <ValidationMessage For="@(() => Model.AvailableCount)"/>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label class="form-label">ISBN</label>
+        <InputText class="form-control" @bind-Value="Model.Isbn" placeholder="např. 978-1-234567-89-7"/>
+        <ValidationMessage For="@(() => Model.Isbn)"/>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public BookFormModel Model { get; set; } = null!;
+}

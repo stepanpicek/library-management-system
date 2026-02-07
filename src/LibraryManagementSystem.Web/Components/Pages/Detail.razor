@@ -1,0 +1,120 @@
+@page "/detail/{id:guid}"
+@using LibraryManagementSystem.Application.Books.Queries.GetBookDetail
+@inject IActionRunner Runner
+@inject ISender Sender
+@inject NavigationManager Navigation
+@inject IToastService Toast
+
+@if (_model is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <PageTitle>Detail knihy @_model.Title</PageTitle>
+    <div class="mb-4">
+        <button class="btn btn-outline-secondary" @onclick="GoBack">
+            &larr; Zpět na seznam
+        </button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">@_model.Title</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Autor</dt>
+                        <dd class="col-sm-8">@_model.Author</dd>
+
+                        <dt class="col-sm-4">Rok vydání</dt>
+                        <dd class="col-sm-8">@_model.Year</dd>
+
+                        <dt class="col-sm-4">ISBN</dt>
+                        <dd class="col-sm-8"><code>@_model.Isbn</code></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-6">Dostupné kopie</dt>
+                        <dd class="col-sm-6">
+                            <span class="badge fs-6 @(_model.AvailableCopies > 0 ? "bg-success" : "bg-danger")">
+                                @_model.AvailableCopies
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Historie výpůjček</h5>
+        </div>
+        <div class="card-body">
+            @if (_model.Loans.Count == 0)
+            {
+                <p class="text-muted mb-0">Žádné výpůjčky</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Datum výpůjčky</th>
+                        <th>Datum vrácení</th>
+                        <th>Stav</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var loan in _model.Loans.OrderByDescending(l => l.BorrowedAt))
+                    {
+                        <tr>
+                            <td>@loan.BorrowedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@(loan.ReturnedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                            <td>
+                                @if (loan.ReturnedAt.HasValue)
+                                {
+                                    <span class="badge bg-secondary">Vráceno</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Vypůjčeno</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private BookDetailDto? _model;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Runner.RunAsync(async () => { _model = await Sender.Send(new GetBookDetailQuery(Id)); },
+            onValidation: _ =>
+            {
+                Navigation.NavigateTo("/not-found");
+                return Task.CompletedTask;
+            });
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+}
