@@ -1,4 +1,5 @@
 using LibraryManagementSystem.Application;
+using LibraryManagementSystem.Application.Common.Interfaces;
 using LibraryManagementSystem.Infrastructure;
 using LibraryManagementSystem.Infrastructure.Data;
 using LibraryManagementSystem.Web;
@@ -13,9 +14,12 @@ builder.AddWebServices();
 
 var app = builder.Build();
 
-using var scope = app.Services.CreateScope();
-var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-await db.Database.MigrateAsync();
+
+await using (var scope = app.Services.CreateAsyncScope())
+await using (var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+{
+    await db.Database.EnsureCreatedAsync();
+}
 
 app.UseExceptionHandler("/Error", createScopeForErrors: true);
 app.UseHttpsRedirection();
@@ -34,3 +38,5 @@ app.MapRazorComponents<App>()
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 
 app.Run();
+
+public partial class Program { }

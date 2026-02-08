@@ -28,6 +28,16 @@ public class ExceptionHandler : IExceptionHandler
             return true;
         }
 
+        // Check for base types (e.g., DomainException subtypes)
+        foreach (var (type, baseHandler) in _exceptionHandlers)
+        {
+            if (type.IsAssignableFrom(exceptionType))
+            {
+                await baseHandler.Invoke(httpContext, exception);
+                return true;
+            }
+        }
+
         return false;
     }
     

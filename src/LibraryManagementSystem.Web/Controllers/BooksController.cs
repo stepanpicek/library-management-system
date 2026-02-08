@@ -19,16 +19,16 @@ public class BooksController(ISender sender) : ControllerBase
         return Ok(data);
     }
 
-    [HttpPost("{id:guid}/borrow")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [HttpPut("{id:guid}/borrow")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> BorrowBook(Guid id)
     {
         await sender.Send(new BorrowBookCommand(id));
-        return Created();
+        return Accepted();
     }
 
-    [HttpPost("{id:guid}/return")]
+    [HttpPut("{id:guid}/return")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ReturnBook(Guid id)

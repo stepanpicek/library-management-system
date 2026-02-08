@@ -16,8 +16,9 @@ public class LoggingBehaviour<TRequest, TResponse>(
         string requestName = typeof(TRequest).Name;
 
         logger.LogInformation(
-            "Processing request {RequestName}",
-            requestName);
+            "Processing request {RequestName}: {Request}",
+            requestName,
+            request);
 
         try
         {
@@ -27,9 +28,9 @@ public class LoggingBehaviour<TRequest, TResponse>(
                 requestName);
             return response;
         }
-        catch
+        catch(Exception ex)
         {
-            logger.LogError(
+            logger.LogError(ex,
                 "Completed request {RequestName} with error",
                 requestName);
             throw;

@@ -49,7 +49,7 @@ public class CreateBookCommandValidator : AbstractValidator<CreateBookCommand>
                 return false;
             }
 
-            sum += isbn[i] * (10 - i);
+            sum += (isbn[i] - '0') * (10 - i);
         }
 
         return sum % 11 == 0;
@@ -65,7 +65,7 @@ public class CreateBookCommandValidator : AbstractValidator<CreateBookCommand>
                 return false;
             }
 
-            sum += isbn[i] * (i % 2 == 0 ? 1 : 3);
+            sum += (isbn[i] - '0') * (i % 2 == 0 ? 1 : 3);
         }
 
         return sum % 10 == 0;
