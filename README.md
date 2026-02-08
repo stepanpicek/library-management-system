@@ -96,12 +96,13 @@ cd library-management-system
 # Obnovení závislostí
 dotnet restore
 
-# Spuštění aplikace
+# Spuštění aplikace (HTTP)
 dotnet run --project src/LibraryManagementSystem.Web
 
-# Aplikace běží na:
-# - http://localhost:5217 (HTTP)
-# - https://localhost:7125 (HTTPS)
+# Nebo s HTTPS
+dotnet run --project src/LibraryManagementSystem.Web --launch-profile https
+
+# Aplikace běží na http://localhost:5217 (nebo https://localhost:7125 s HTTPS profilem)
 ```
 
 ### Možnost 2: Spuštění pomocí Dockeru
@@ -111,7 +112,7 @@ dotnet run --project src/LibraryManagementSystem.Web
 docker build -t library-management-system -f src/LibraryManagementSystem.Web/Dockerfile .
 
 # Spuštění kontejneru
-docker run -d -p 8080:8080 --name library-app library-management-system
+docker run -d -p 8080:8080 --name library-management-system library-management-system
 
 # Aplikace běží na http://localhost:8080
 ```
